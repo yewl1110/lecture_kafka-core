@@ -1,0 +1,13 @@
+services:
+  kafka:
+    user: root
+    build:
+      dockerfile: ./Dockerfile
+    privileged: true
+    volumes:
+      - ./data/home/syj:/home/syj
+      - ./data/root:/root
+      - kafka-data:/home/data
+    network_mode: host
+volumes:
+  kafka-data:

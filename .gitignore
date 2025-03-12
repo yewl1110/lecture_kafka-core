@@ -1,0 +1,19 @@
+# Default ignored files
+/shelf/
+/.idea/workspace.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+
+/confluent/
+data/home/data
+data/home/syj/confluent
+data/home/syj/confluent.tar
+data/home/syj/*.log
+.idea
+.bash_history
+.viminfo
+
+
