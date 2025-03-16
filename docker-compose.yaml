@@ -8,6 +8,8 @@ services:
       - ./data/home/syj:/home/syj
       - ./data/root:/root
       - kafka-data:/home/data
-    network_mode: host
+    ports:
+      - '19092:9092'
+      - '19093:9093'
 volumes:
   kafka-data:
