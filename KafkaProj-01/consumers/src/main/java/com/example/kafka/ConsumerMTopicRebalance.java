@@ -1,9 +1,6 @@
 package com.example.kafka;
 
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.errors.WakeupException;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
@@ -13,7 +10,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Properties;
 
-public class ConsumerWakeup {
+public class ConsumerMTopicRebalance {
 
     public static final Logger logger = LoggerFactory.getLogger(ConsumerMTopicRebalance.class);
 
@@ -25,11 +22,11 @@ public class ConsumerWakeup {
         props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.254.64:19093");
         props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "group-01-static");
-        props.setProperty(ConsumerConfig.GROUP_INSTANCE_ID_CONFIG, "3");
+        props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "group-assign");
+        props.setProperty(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, CooperativeStickyAssignor.class.getName());
 
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(List.of(topicName));
+        consumer.subscribe(List.of("topic-p3-t1", "topic-p3-t2"));
 
         // main thread 참조 변수
         Thread mainThread = Thread.currentThread();
@@ -50,7 +47,10 @@ public class ConsumerWakeup {
             while(true){
                 ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofMillis(1000));
                 for(ConsumerRecord<String, String> record : consumerRecords){
-                    logger.info("record key:{}, partition: {}, record offset: {}, record value:{}", record.key(), record.partition(), record.offset(), record.value());
+                    logger.info(
+                            "topic:{}, record key:{}, partition: {}, record offset: {}, record value:{}",
+                            record.topic(), record.key(), record.partition(), record.offset(), record.value()
+                    );
                 }
             }
         } catch (WakeupException e) {
