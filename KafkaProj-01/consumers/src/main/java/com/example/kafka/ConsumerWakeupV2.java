@@ -13,9 +13,9 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Properties;
 
-public class ConsumerWakeup {
+public class ConsumerWakeupV2 {
 
-    public static final Logger logger = LoggerFactory.getLogger(ConsumerWakeup.class);
+    public static final Logger logger = LoggerFactory.getLogger(ConsumerWakeupV2.class);
 
     public static void main(String[] args) {
 
@@ -25,8 +25,8 @@ public class ConsumerWakeup {
         props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.254.64:19093");
         props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "group-01-static");
-        props.setProperty(ConsumerConfig.GROUP_INSTANCE_ID_CONFIG, "3");
+        props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "group-02");
+        props.setProperty(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, "60000");
 
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
         consumer.subscribe(List.of(topicName));
@@ -47,10 +47,20 @@ public class ConsumerWakeup {
         }));
 
         try {
+            int loopCount = 0;
+
             while(true){
                 ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofMillis(1000));
+                logger.info("loopCnt:{}, consumerRecords count: {}" , loopCount++, consumerRecords.count());
                 for(ConsumerRecord<String, String> record : consumerRecords){
                     logger.info("record key:{}, partition: {}, record offset: {}, record value:{}", record.key(), record.partition(), record.offset(), record.value());
+                }
+
+                try {
+                    logger.info("main thread is sleeping {} ms during while loop", loopCount * 10000);
+                    Thread.sleep(10000 * loopCount);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
         } catch (WakeupException e) {
