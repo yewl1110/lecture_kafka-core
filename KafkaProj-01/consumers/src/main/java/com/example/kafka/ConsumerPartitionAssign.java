@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-public class ConsumerCommit {
+public class ConsumerPartitionAssign {
 
-    public static final Logger logger = LoggerFactory.getLogger(ConsumerCommit.class);
+    public static final Logger logger = LoggerFactory.getLogger(ConsumerPartitionAssign.class);
 
     public static void main(String[] args) {
 
@@ -24,13 +24,14 @@ public class ConsumerCommit {
         props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.254.64:19093");
         props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "group-03");
-        props.setProperty(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "6000");
+        props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "group_pizza_assign_seek");
+//        props.setProperty(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "6000");
         props.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
 
 
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(List.of(topicName));
+        TopicPartition topicPartition = new TopicPartition(topicName, 0);
+        consumer.assign(List.of(topicPartition));
 
         // main thread 참조 변수
         Thread mainThread = Thread.currentThread();
@@ -49,8 +50,8 @@ public class ConsumerCommit {
 
 
 //        pollAutoCommit(consumer);
-//        pollCommitSync(consumer);
-        pollCommitAsync(consumer);
+        pollCommitSync(consumer);
+//        pollCommitAsync(consumer);
     }
 
     private static void pollCommitAsync(KafkaConsumer<String, String> consumer) {
