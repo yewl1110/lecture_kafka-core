@@ -1,0 +1,18 @@
+services:
+  db:
+    build:
+      dockerfile: Dockerfile
+    environment:
+#      POSTGRES_USER: yj
+      POSTGRES_PASSWORD: 980809
+    volumes:
+      - db:/var/lib/postgresql/data
+    ports:
+      - "15432:5432"
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+volumes:
+  db:
